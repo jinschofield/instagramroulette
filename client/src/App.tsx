@@ -49,7 +49,17 @@ const App: React.FC = () => {
         }
       />
 
-      <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route 
+        path="/leaderboard" 
+        element={
+          <Leaderboard 
+            roomCode = "ROOM123"
+            owner = "alice"
+            players={["alice", "bob", "charlie", "dave", "eve", "mallory"]}
+            scores={[0,4,6,3,4,1]}
+          />
+        } 
+      />
     </Routes>
   );
 };
