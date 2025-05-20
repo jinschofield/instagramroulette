@@ -13,12 +13,13 @@
     "https://*.instagram.com/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src ws://localhost:8080"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://cdn.socket.io ws://localhost:8080"
   }
 }

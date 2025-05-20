@@ -1,52 +1,67 @@
-// background.js
+// background.js (MV3 module)
+// ---------------------------
 
-console.log('[Background] loaded');
+// 1) import the Socket.IO client
+import { io } from 'https://cdn.socket.io/4.5.4/socket.io.esm.min.js';
 
-const KEY_NAME      = 'userName';
-const KEY_LIVEMODE  = 'useWebSocket';
-const REEL_PATH     = '/reels/';
+console.log('[Background] loaded as module');
 
-let nameCache       = 'unknown';
-let useWebSocket    = false;
-let buffer          = [];
-let ws              = null;
+const KEY_NAME     = 'userName';
+const KEY_LIVEMODE = 'useWebSocket';
+const REEL_PATH    = '/reels/';
+
+let nameCache    = 'unknown';
+let useWebSocket = false;
+let buffer       = [];
+let socket       = null;
 
 /**
- * Initialize the WebSocket connection (with auto-reconnect),
- * but only if we’re in live mode.
+ * Initialize Socket.IO (with auto-reconnect),
+ * only if we're in Live mode.
  */
-function initWebSocket() {
+function initSocketIO() {
   if (!useWebSocket) {
-    console.log('[WS] init skipped—testing mode');
+    console.log('[Socket.IO] init skipped — testing mode');
     return;
   }
-  if (ws && ws.readyState <= WebSocket.OPEN) return;
+  if (socket) return;  // already initialized
 
-  ws = new WebSocket('ws://localhost:8080');  // ← your real endpoint
-  ws.addEventListener('open',  ()    => console.log('[WS] connected'));
-  ws.addEventListener('close', ()    => {
-    console.log('[WS] closed—retry in 5s');
-    setTimeout(initWebSocket, 5000);
+  // ← change to your server URL & port
+  socket = io('http://localhost:8080', {
+    transports: ['websocket'],
+    reconnectionDelay: 5000,
+    autoConnect: true
   });
-  ws.addEventListener('error', err  => console.error('[WS] error', err));
+
+  socket.on('connect', () => {
+    console.log('[Socket.IO] connected as', socket.id);
+  });
+  socket.on('disconnect', reason => {
+    console.log('[Socket.IO] disconnected:', reason);
+    // socket.io auto-reconnects by default
+  });
+  socket.on('connect_error', err => {
+    console.error('[Socket.IO] connection error:', err.message);
+  });
 }
 
 /**
- * Handle every new /reel/ URL:
- * - In Test mode: buffer it and download data.json
- * - In Live mode: send { name, reel } over WebSocket
+ * Handle each new /reel/ URL:
+ *  - In Test mode: buffer + download data.json
+ *  - In Live mode: emit via Socket.IO
  */
 async function handleReelUrl(url) {
   if (useWebSocket) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (socket && socket.connected) {
       const payload = { name: nameCache, reel: url };
-      ws.send(JSON.stringify(payload));
-      console.log('[WS] sent', payload);
+      socket.emit('reel', payload);
+      console.log('[Socket.IO] emitted', payload);
     } else {
-      console.warn('[WS] not open—dropped', url);
+      console.warn('[Socket.IO] not connected — dropped', url);
     }
 
   } else {
+    // TEST MODE: buffer & download
     if (!buffer.includes(url)) {
       buffer.push(url);
       console.log('[Test] buffered', url);
@@ -57,8 +72,8 @@ async function handleReelUrl(url) {
                       encodeURIComponent(json);
 
       chrome.downloads.download({
-        url:         blobUrl,
-        filename:    'data.json',
+        url:            blobUrl,
+        filename:       'data.json',
         conflictAction: 'overwrite'
       }, id => {
         if (chrome.runtime.lastError)
@@ -71,18 +86,18 @@ async function handleReelUrl(url) {
 }
 
 /**
- * On startup, load stored name & mode
+ * On startup: load stored name & mode, then init Socket.IO if needed
  */
 chrome.storage.local.get([KEY_NAME, KEY_LIVEMODE])
   .then(({ userName, useWebSocket: live }) => {
-    if (userName)      nameCache    = userName;
+    if (userName)          nameCache    = userName;
     if (typeof live === 'boolean') useWebSocket = live;
     console.log('[Background] name=', nameCache, 'liveMode=', useWebSocket);
-    if (useWebSocket) initWebSocket();
+    if (useWebSocket) initSocketIO();
   });
 
 /**
- * Watch for changes to name or live/test mode from popup
+ * Watch for changes (popup toggles)
  */
 chrome.storage.onChanged.addListener(changes => {
   if (changes[KEY_NAME]) {
@@ -92,10 +107,10 @@ chrome.storage.onChanged.addListener(changes => {
   if (changes[KEY_LIVEMODE]) {
     useWebSocket = changes[KEY_LIVEMODE].newValue;
     console.log('[Background] liveMode changed to', useWebSocket);
-    if (useWebSocket) initWebSocket();
-    else if (ws) {
-      ws.close();
-      ws = null;
+    if (useWebSocket) initSocketIO();
+    else if (socket) {
+      socket.disconnect();
+      socket = null;
     }
   }
 });
@@ -105,16 +120,11 @@ const filter = { url: [{ hostContains: 'instagram.com' }] };
 
 // Full page loads
 chrome.webNavigation.onCompleted.addListener(
-  ({ url }) => {
-    if (url.includes(REEL_PATH)) handleReelUrl(url);
-  },
+  ({ url }) => url.includes(REEL_PATH) && handleReelUrl(url),
   filter
 );
-
-// Client-side (SPA) navigations
+// SPA history changes
 chrome.webNavigation.onHistoryStateUpdated.addListener(
-  ({ url }) => {
-    if (url.includes(REEL_PATH)) handleReelUrl(url);
-  },
+  ({ url }) => url.includes(REEL_PATH) && handleReelUrl(url),
   filter
 );
