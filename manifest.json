@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "IG Explore Link Collector",
+  "version": "1.0",
+  "description": "Collect the first 5 links from Instagram Explore and download as JSON",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.instagram.com/explore/*",
+    "http://localhost:3000/*"
+  ],
+  "action": {
+    "default_title": "Collect 5 Explore Links"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
