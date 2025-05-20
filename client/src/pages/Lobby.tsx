@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import io from "socket.io-client";
 
 const serverAddress: string = "http://localhost:3000";
@@ -8,12 +9,6 @@ const socket = io(serverAddress);
 interface User {
   username: string;
   ready: boolean;
-}
-
-/** Props passed to Lobby */
-interface LobbyProps {
-  currentUser: string;
-  users: User[];
 }
 
 /** Server response: maps usernames to their submitted Instagram links */
@@ -30,8 +25,13 @@ interface LobbyUpdateResponse {
  * @param {User[]} users - Initial users list to show before any update
  * @returns {JSX.Element} - Rendered lobby page
  */
-const Lobby: React.FC<LobbyProps> = ({ currentUser, users: initialUsers }) => {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+const Lobby: React.FC = () => {
+  const location = useLocation();
+  const { currentUser } = location.state;
+
+  const [users, setUsers] = useState<User[]>(location.state.users);
+  console.log("IN LOBBY NOW");
+  console.log(users);
 
   /**
    * Converts the server's lobby update payload into a list of users with ready states.
@@ -42,7 +42,7 @@ const Lobby: React.FC<LobbyProps> = ({ currentUser, users: initialUsers }) => {
   const extractUsersFromUpdate = (data: LobbyUpdateResponse): User[] => {
     return Object.entries(data).map(([username, links]) => ({
       username,
-      ready: links.length > 0
+      ready: links !== null,
     }));
   };
 

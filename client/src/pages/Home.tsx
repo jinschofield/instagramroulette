@@ -31,7 +31,7 @@ const Home: React.FC = () => {
   const extractUsersFromUpdate = (data: { [username: string]: string[] }): User[] => {
     return Object.entries(data).map(([uname, links]) => ({
       username: uname,
-      ready: links.length > 0
+      ready: links !== null,
     }));
   };
 
@@ -44,7 +44,7 @@ const Home: React.FC = () => {
     // Listen for lobby update and navigate once received
     socket.once("lobby_update", (data: { [username: string]: string[] }) => {
       const users: User[] = extractUsersFromUpdate(data);
-
+      console.log(`Loading users: ${users} into lobby.`);
       navigate("/lobby", {
         state: {
           currentUser: username,

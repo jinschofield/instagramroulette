@@ -23,14 +23,7 @@ const App: React.FC = () => {
       <Route
         path="/lobby"
         element={
-          <Lobby
-            currentUser="alice"
-            users={[
-              { username: "alice", ready: true },
-              { username: "bob", ready: false },
-              { username: "charlie", ready: true },
-            ]}
-          />
+          <Lobby/>
         }
       />
 

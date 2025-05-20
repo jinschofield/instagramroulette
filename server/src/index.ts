@@ -4,13 +4,17 @@ import { Server } from 'socket.io';
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173"
+  }
+});
 
 const userUrlsMap = new Map<string, string[] | null>();
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  socket.on('join', (username) => {
+  socket.on('join_lobby', (username) => {
     // TODO: make sure can't take someone else's username
     if (!userUrlsMap.has(username)) {
       userUrlsMap.set(username, null);
