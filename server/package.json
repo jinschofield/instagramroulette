@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@types/node": "^22.15.19",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "tsx": "^4.19.4"
+  }
+}
