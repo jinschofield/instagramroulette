@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
 const serverAddress: string = "http://localhost:3000";
@@ -27,6 +27,7 @@ interface LobbyUpdateResponse {
  */
 const Lobby: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { currentUser } = location.state;
 
   const [users, setUsers] = useState<User[]>(location.state.users);
@@ -58,9 +59,22 @@ const Lobby: React.FC = () => {
   }, []);
 
   const handleStartGame = (): void => {
-    console.log("Game started!");
     socket.emit("start_game");
   };
+
+  socket.on("start_guess", () => {
+    const players = users.map((user) => user.username);
+    navigate("/guess", {
+      state: {
+        players,
+        postUrl: "DIlCkRwt5LX",
+      }
+    })
+  });
+
+  socket.on("start_failed", () => {
+    console.log("start failed");
+  })
 
   return (
     <div
@@ -75,7 +89,7 @@ const Lobby: React.FC = () => {
     >
       {/* Top Row - Owner Display */}
       <div style={{ alignSelf: "flex-start", fontSize: "1.2rem", fontWeight: "bold" }}>
-        Owner: {users[0]?.username || "Unknown"}
+        Owner: {"DEMO"}
       </div>
 
       {/* Center - Room Code + User List */}
@@ -114,7 +128,7 @@ const Lobby: React.FC = () => {
       </div>
 
       {/* Bottom - Start Game Button (only if currentUser is owner) */}
-      {currentUser === users[0]?.username && (
+      {(
         <button
           onClick={handleStartGame}
           style={{

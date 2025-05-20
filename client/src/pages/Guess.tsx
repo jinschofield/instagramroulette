@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import io from "socket.io-client";
 
 const serverAddress = "http://localhost:3000";
@@ -8,7 +9,11 @@ interface GuessProps {
   players: string[];
 }
 
-const Guess: React.FC<GuessProps> = ({ postUrl, players }) => {
+const Guess: React.FC<GuessProps> = () => {
+    const location = useLocation();
+    const { postUrl } = location.state;
+    const { players } = location.state;
+
     const socket = io(serverAddress); // Connect to your server
     return (
     <div

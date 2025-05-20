@@ -41,6 +41,7 @@ const Home: React.FC = () => {
     // Emit join request
     socket.emit("join_lobby", username);
 
+    // NOTE: if failed join, then old update bug
     // Listen for lobby update and navigate once received
     socket.once("lobby_update", (data: { [username: string]: string[] }) => {
       const users: User[] = extractUsersFromUpdate(data);

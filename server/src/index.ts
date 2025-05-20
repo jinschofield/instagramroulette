@@ -11,6 +11,7 @@ const io = new Server(server, {
 });
 
 const userUrlsMap = new Map<string, string[] | null>();
+const socketUserMap = new Map<string, string>();
 
 io.on('connection', (socket) => {
   console.log('a user connected');
@@ -20,9 +21,10 @@ io.on('connection', (socket) => {
       userUrlsMap.set(username, null);
       io.emit("lobby_update", Object.fromEntries(userUrlsMap));
     }
+    socketUserMap.set(socket.id, username);
   });
 
-  socket.on('geturls', (username, links) => {
+  socket.on('get_urls', (username, links) => {
     if (typeof username !== 'string' || !Array.isArray(links) || links.some(link => typeof link !== 'string')) {
       console.log('Invalid input. Expecting a username and an array of links.');
     }
@@ -32,8 +34,23 @@ io.on('connection', (socket) => {
     io.emit("lobby_update", Object.fromEntries(userUrlsMap));
   });
 
+  socket.on('start_game', () => {
+    for (const value of userUrlsMap.values()) {
+      if (!value) {
+        io.emit("start_failed");
+        return;
+      }
+    }
+    io.emit("start_guess");
+  });
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
+    const user = socketUserMap.get(socket.id);
+    if (user) {
+      userUrlsMap.delete(user);
+      io.emit("lobby_update", Object.fromEntries(userUrlsMap));
+    }
   });
 })
 

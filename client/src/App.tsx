@@ -23,7 +23,7 @@ const App: React.FC = () => {
       <Route
         path="/lobby"
         element={
-          <Lobby/>
+          <Lobby />
         }
       />
 
@@ -31,10 +31,7 @@ const App: React.FC = () => {
       <Route
         path="/guess"
         element={
-          <Guess
-            postUrl="DIlCkRwt5LX" // e.g., the part after "/p/"
-            players={["alice", "bob", "charlie", "dave", "eve", "mallory"]}
-          />
+          <Guess />
         }
       />
 
