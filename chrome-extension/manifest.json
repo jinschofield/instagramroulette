@@ -8,7 +8,8 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://www.instagram.com/explore/*"
+    "https://www.instagram.com/explore/*",
+    "http://localhost:3000/*"
   ],
   "action": {
     "default_title": "Collect 5 Explore Links"

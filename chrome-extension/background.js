@@ -1,5 +1,5 @@
 // update here and also add to host permissions in manifest.json pls
-const SERVER_ENDPOINT = "https://api.myserver.com/receive-links";
+const SERVER_ENDPOINT = "http://localhost:3000/";
 
 chrome.action.onClicked.addListener(tab => {
   if (!tab.url.startsWith("https://www.instagram.com/explore/")) {
