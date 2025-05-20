@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2020",                        // Modern JS features
+    "module": "esnext",                        // Enables top-level await and ES module syntax
+    "moduleResolution": "node",                // Resolve modules like Node.js
+    "esModuleInterop": true,                   // Interop with CommonJS (e.g., express)
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "dist"                           // Emit compiled JS to `dist/`
+  },
+  "include": ["src"],                          // Source folder
+  "exclude": ["node_modules"]
+}
