@@ -1,27 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <title>Insta Saver Settings</title>
   <style>
-    body    { font-family: sans-serif; padding: 12px; width: 200px; }
-    label   { display: block; margin: 8px 0 4px; }
-    input, button { width: 100%; padding: 4px; }
-    .toggle { display: flex; align-items: center; }
-    .toggle input { margin-right: 8px; }
+    /* Base styles */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+    }
+    .container {
+      width: 300px;
+      padding: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h3 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      text-align: center;
+      color: #222;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    /* Toggle switch */
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .toggle-switch label {
+      margin: 0;
+      font-weight: 500;
+    }
+    .toggle-switch input {
+      display: none;
+    }
+    .slider {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background: #ccc;
+      border-radius: 10px;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .slider::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    input:checked + .slider {
+      background: #4caf50;
+    }
+    input:checked + .slider::before {
+      transform: translateX(20px);
+    }
+    /* Button */
+    button {
+      width: 100%;
+      padding: 10px 0;
+      font-size: 1rem;
+      color: #fff;
+      background: #007bff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0069d9;
+    }
   </style>
 </head>
 <body>
-  <h3>Settings</h3>
-
-  <label for="username">Your Name:</label>
-  <input id="username" placeholder="e.g. Jin" />
-
-  <div class="toggle">
-    <input type="checkbox" id="liveMode" />
-    <label for="liveMode">Live Mode (WS)</label>
+  <div class="container">
+    <div class="card">
+      <h3>Insta Saver</h3>
+      <div class="form-group">
+        <label for="username">Your Name</label>
+        <input type="text" id="username" placeholder="Enter your name" />
+      </div>
+      <div class="toggle-switch form-group">
+        <label for="liveMode">Live Mode</label>
+        <input type="checkbox" id="liveMode" />
+        <span class="slider"></span>
+      </div>
+      <button id="save">Save & Close</button>
+    </div>
   </div>
 
-  <button id="save">Save & Close</button>
+  <!-- External script to satisfy CSP -->
   <script src="popup.js"></script>
 </body>
 </html>
