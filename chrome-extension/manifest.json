@@ -1,20 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "IG Explore Link Collector",
+  "name": "Insta Saver (Test ↔ Live)",
   "version": "1.0",
-  "description": "Collect the first 5 links from Instagram Explore and download as JSON",
+  "description": "Toggle between downloading JSON locally or sending via WebSocket",
   "permissions": [
-    "activeTab",
-    "scripting"
+    "storage",
+    "downloads",
+    "tabs",
+    "webNavigation"
   ],
   "host_permissions": [
-    "https://www.instagram.com/explore/*",
-    "http://localhost:3000/*"
+    "https://*.instagram.com/*"
   ],
-  "action": {
-    "default_title": "Collect 5 Explore Links"
-  },
   "background": {
     "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src ws://localhost:8080"
   }
 }

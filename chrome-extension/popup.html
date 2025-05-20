@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body    { font-family: sans-serif; padding: 12px; width: 200px; }
+    label   { display: block; margin: 8px 0 4px; }
+    input, button { width: 100%; padding: 4px; }
+    .toggle { display: flex; align-items: center; }
+    .toggle input { margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <h3>Settings</h3>
+
+  <label for="username">Your Name:</label>
+  <input id="username" placeholder="e.g. Jin" />
+
+  <div class="toggle">
+    <input type="checkbox" id="liveMode" />
+    <label for="liveMode">Live Mode (WS)</label>
+  </div>
+
+  <button id="save">Save & Close</button>
+  <script src="popup.js"></script>
+</body>
+</html>
