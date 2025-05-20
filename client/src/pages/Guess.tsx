@@ -1,14 +1,16 @@
 import React from "react";
+import io from "socket.io-client";
+
+const serverAddress = "http://localhost:3000";
 
 interface GuessProps {
   postUrl: string;
-  roomCode: string;
-  owner: string;
   players: string[];
 }
 
-const Guess: React.FC<GuessProps> = ({ postUrl, roomCode, owner, players }) => {
-  return (
+const Guess: React.FC<GuessProps> = ({ postUrl, players }) => {
+    const socket = io(serverAddress); // Connect to your server
+    return (
     <div
       style={{
         minHeight: "100vh",
@@ -21,7 +23,7 @@ const Guess: React.FC<GuessProps> = ({ postUrl, roomCode, owner, players }) => {
     >
       {/* Top-left Room Info */}
       <div style={{ alignSelf: "flex-start", marginBottom: "1rem", fontSize: "1rem" }}>
-        <strong>Room:</strong> {roomCode} | <strong>Owner:</strong> {owner}
+        <strong>Room:</strong> DEMO | <strong>Owner:</strong> DEMO
       </div>
 
       {/* Page Title */}

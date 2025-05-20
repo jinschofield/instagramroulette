@@ -1,13 +1,16 @@
 import React from "react";
+import io from "socket.io-client";
+
+const serverAddress = "http://localhost:3000";
 
 interface LeaderboardProps {
-  roomCode: string;
-  owner: string;
   players: string[];
   scores: number[];
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ roomCode, owner, players, scores }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({players, scores }) => {
+  const socket = io(serverAddress); // Connect to your server 
+  
   // Create an array of player objects with their original index
   const playerData = players.map((player, index) => ({
     name: player,
@@ -31,7 +34,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ roomCode, owner, players, sco
     >
       {/* Top-left Room Info */}
       <div style={{ alignSelf: "flex-start", marginBottom: "1rem", fontSize: "1rem" }}>
-        <strong>Room:</strong> {roomCode} | <strong>Owner:</strong> {owner}
+        <strong>Room:</strong> DEMO | <strong>Owner:</strong> DEMO
       </div>
 
       {/* Page Title */}

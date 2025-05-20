@@ -1,26 +1,57 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
 
+const serverAddress: string = "http://localhost:3000";
+const socket = io(serverAddress);
+
+/** User object used in Lobby */
+interface User {
+  username: string;
+  ready: boolean;
+}
+
+/* ******Home Component****** */
+/**
+ * Home page where the user enters their username and joins a room.
+ * Emits a join request via socket and navigates to the lobby on success.
+ *
+ * @returns {JSX.Element} - Rendered home screen
+ */
 const Home: React.FC = () => {
   const [username, setUsername] = useState<string>("");
+  const navigate = useNavigate();
 
-  const handleJoinRoom = (): void => {
-    if (!username.trim()) {
-      alert("Please enter a username.");
-      return;
-    }
-
-    console.log(`Joining room as ${username}`);
-    // TODO: Route to join room or emit to socket
+  /**
+   * Extracts user-ready state from the server lobby data.
+   *
+   * @param {{ [username: string]: string[] }} data - lobby update JSON payload
+   * @returns {User[]} - List of users with readiness
+   */
+  const extractUsersFromUpdate = (data: { [username: string]: string[] }): User[] => {
+    return Object.entries(data).map(([uname, links]) => ({
+      username: uname,
+      ready: links.length > 0
+    }));
   };
 
-  const handleCreateRoom = (): void => {
-    if (!username.trim()) {
-      alert("Please enter a username.");
-      return;
-    }
+  const handleJoinLobby = (): void => {
+    if (!username.trim()) return;
 
-    console.log(`Creating room as ${username}`);
-    // TODO: Route to create room or emit to socket
+    // Emit join request
+    socket.emit("join_lobby", username);
+
+    // Listen for lobby update and navigate once received
+    socket.once("lobby_update", (data: { [username: string]: string[] }) => {
+      const users: User[] = extractUsersFromUpdate(data);
+
+      navigate("/lobby", {
+        state: {
+          currentUser: username,
+          users
+        }
+      });
+    });
   };
 
   return (
@@ -31,57 +62,38 @@ const Home: React.FC = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "1.5rem",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "#fafafa",
       }}
     >
-      <h1 style={{ fontSize: "3rem", fontWeight: "bold" }}>Instagram Roulette</h1>
-
+      <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Instagram Roulette</h1>
       <input
         type="text"
-        placeholder="Enter your username"
+        placeholder="Enter username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         style={{
-          padding: "0.75rem 1rem",
+          padding: "0.75rem",
           fontSize: "1rem",
           borderRadius: "0.5rem",
           border: "1px solid #ccc",
-          width: "300px",
+          marginBottom: "1rem",
+          width: "250px"
         }}
       />
-
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <button
-          onClick={handleCreateRoom}
-          style={{
-            padding: "0.75rem 1.25rem",
-            fontSize: "1rem",
-            borderRadius: "0.5rem",
-            backgroundColor: "#4CAF50",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Create Room
-        </button>
-
-        <button
-          onClick={handleJoinRoom}
-          style={{
-            padding: "0.75rem 1.25rem",
-            fontSize: "1rem",
-            borderRadius: "0.5rem",
-            backgroundColor: "#2196F3",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Join Room
-        </button>
-      </div>
+      <button
+        onClick={handleJoinLobby}
+        style={{
+          padding: "0.75rem 1.5rem",
+          fontSize: "1rem",
+          borderRadius: "0.5rem",
+          backgroundColor: "#007bff",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        Join Lobby
+      </button>
     </div>
   );
 };

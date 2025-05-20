@@ -24,8 +24,6 @@ const App: React.FC = () => {
         path="/lobby"
         element={
           <Lobby
-            roomCode="ABCD1234"
-            owner="alice"
             currentUser="alice"
             users={[
               { username: "alice", ready: true },
@@ -42,8 +40,6 @@ const App: React.FC = () => {
         element={
           <Guess
             postUrl="DIlCkRwt5LX" // e.g., the part after "/p/"
-            roomCode="ROOM123"
-            owner="alice"
             players={["alice", "bob", "charlie", "dave", "eve", "mallory"]}
           />
         }
@@ -53,8 +49,6 @@ const App: React.FC = () => {
         path="/leaderboard" 
         element={
           <Leaderboard 
-            roomCode = "ROOM123"
-            owner = "alice"
             players={["alice", "bob", "charlie", "dave", "eve", "mallory"]}
             scores={[0,4,6,3,4,1]}
           />

@@ -1,21 +1,65 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import io from "socket.io-client";
 
+const serverAddress: string = "http://localhost:3000";
+const socket = io(serverAddress);
+
+/** User object as used in rendering */
 interface User {
   username: string;
   ready: boolean;
 }
 
+/** Props passed to Lobby */
 interface LobbyProps {
-  roomCode: string;
-  owner: string;
   currentUser: string;
   users: User[];
 }
 
-const Lobby: React.FC<LobbyProps> = ({ roomCode, owner, currentUser, users }) => {
+/** Server response: maps usernames to their submitted Instagram links */
+interface LobbyUpdateResponse {
+  [username: string]: string[];
+}
+
+/* ******Lobby Component****** */
+/**
+ * Lobby UI that shows a list of players, their ready status (based on whether they’ve submitted links),
+ * and allows the owner to start the game. It listens to live updates from the server via websockets.
+ *
+ * @param {string} currentUser - Username of the current user
+ * @param {User[]} users - Initial users list to show before any update
+ * @returns {JSX.Element} - Rendered lobby page
+ */
+const Lobby: React.FC<LobbyProps> = ({ currentUser, users: initialUsers }) => {
+  const [users, setUsers] = useState<User[]>(initialUsers);
+
+  /**
+   * Converts the server's lobby update payload into a list of users with ready states.
+   *
+   * @param {LobbyUpdateResponse} data - The server lobby update payload
+   * @returns {User[]} - List of users with updated ready status
+   */
+  const extractUsersFromUpdate = (data: LobbyUpdateResponse): User[] => {
+    return Object.entries(data).map(([username, links]) => ({
+      username,
+      ready: links.length > 0
+    }));
+  };
+
+  useEffect(() => {
+    socket.on("lobby_update", (data: LobbyUpdateResponse) => {
+      console.log("Received lobby update:", data);
+      setUsers(extractUsersFromUpdate(data));
+    });
+
+    return () => {
+      socket.off("lobby_update");
+    };
+  }, []);
+
   const handleStartGame = (): void => {
     console.log("Game started!");
-    // TODO: emit start to socket
+    socket.emit("start_game");
   };
 
   return (
@@ -29,14 +73,14 @@ const Lobby: React.FC<LobbyProps> = ({ roomCode, owner, currentUser, users }) =>
         backgroundColor: "#f0f0f0"
       }}
     >
-      {/* Top Row - Owner */}
+      {/* Top Row - Owner Display */}
       <div style={{ alignSelf: "flex-start", fontSize: "1.2rem", fontWeight: "bold" }}>
-        Owner: {owner}
+        Owner: {users[0]?.username || "Unknown"}
       </div>
 
       {/* Center - Room Code + User List */}
       <div style={{ textAlign: "center" }}>
-        <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>Room Code: {roomCode}</h1>
+        <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>Room Code: DEMO</h1>
         <div
           style={{
             margin: "0 auto",
@@ -49,9 +93,9 @@ const Lobby: React.FC<LobbyProps> = ({ roomCode, owner, currentUser, users }) =>
         >
           <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Players</h2>
           <ul style={{ listStyle: "none", padding: 0 }}>
-            {users.map((user, idx) => (
+            {users.map((user) => (
               <li
-                key={idx}
+                key={user.username}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -69,8 +113,8 @@ const Lobby: React.FC<LobbyProps> = ({ roomCode, owner, currentUser, users }) =>
         </div>
       </div>
 
-      {/* Bottom - Start Button */}
-      {currentUser === owner && (
+      {/* Bottom - Start Game Button (only if currentUser is owner) */}
+      {currentUser === users[0]?.username && (
         <button
           onClick={handleStartGame}
           style={{
