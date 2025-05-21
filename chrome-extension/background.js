@@ -25,7 +25,7 @@ function initSocketIO() {
   }
   if (socket) return;  // already initialized
 
-  socket = io('http://localhost:8080', {
+  socket = io('http://localhost:3000', {
     transports: ['websocket'],
     reconnectionDelay: 5000,
     autoConnect: true

@@ -49,7 +49,8 @@ const Home: React.FC = () => {
       navigate("/lobby", {
         state: {
           currentUser: username,
-          users
+          users,
+          data,
         }
       });
     });

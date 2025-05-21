@@ -11,7 +11,7 @@ interface GuessProps {
 
 const Guess: React.FC<GuessProps> = () => {
     const location = useLocation();
-    const { postUrl } = location.state;
+    const { postId } = location.state;
     const { players } = location.state;
 
     const socket = io(serverAddress); // Connect to your server
@@ -38,7 +38,7 @@ const Guess: React.FC<GuessProps> = () => {
       <div style={{ width: "100%", maxWidth: "500px", marginBottom: "2rem" }}>
         <iframe
           title="Instagram Post"
-          src={`https://www.instagram.com/p/${postUrl}/embed`}
+          src={`https://www.instagram.com/p/${postId}/embed`}
           width="100%"
           height="600"
           frameBorder="0"

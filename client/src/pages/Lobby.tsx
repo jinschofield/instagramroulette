@@ -11,6 +11,11 @@ interface User {
   ready: boolean;
 }
 
+interface GameStartResponse {
+  postUser: string;
+  postId: string;
+}
+
 /** Server response: maps usernames to their submitted Instagram links */
 interface LobbyUpdateResponse {
   [username: string]: string[];
@@ -31,6 +36,7 @@ const Lobby: React.FC = () => {
   const { currentUser } = location.state;
 
   const [users, setUsers] = useState<User[]>(location.state.users);
+  const [lobbyData, setLobbyData] = useState<LobbyUpdateResponse>(location.state.data);
   console.log("IN LOBBY NOW");
   console.log(users);
 
@@ -51,6 +57,7 @@ const Lobby: React.FC = () => {
     socket.on("lobby_update", (data: LobbyUpdateResponse) => {
       console.log("Received lobby update:", data);
       setUsers(extractUsersFromUpdate(data));
+      setLobbyData(data);
     });
 
     return () => {
@@ -62,12 +69,15 @@ const Lobby: React.FC = () => {
     socket.emit("start_game");
   };
 
-  socket.on("start_guess", () => {
+  socket.on("start_guess", (payload: GameStartResponse) => {
+    const { postId } = payload;
+    const { postUser } = payload;
     const players = users.map((user) => user.username);
     navigate("/guess", {
       state: {
         players,
-        postUrl: "DIlCkRwt5LX",
+        postId,
+        postUser,
       }
     })
   });
